@@ -122,7 +122,60 @@ You should see `"state": "RUNNING"` for both the connector and its task.
 > To switch back to direct Kafka: set `APP_EVENTS_CDC_ENABLED=false` and run `./start-app.sh`.
 
 ---
+## QA Assessment Summary
 
+### Overview
+
+This assessment extends the supplied Insurance Claims Management demo with a separate Playwright automation suite using JavaScript. The suite complements the existing frontend and backend tests and focuses on high-priority authentication, authorization, API security, and claim submission validation scenarios.
+
+The supplied application uses Next.js 16 and React 19 for the UI, Spring Boot and Java 21 for backend services, and supporting infrastructure including PostgreSQL, Redis, Kafka, and Keycloak.
+
+### Automated Test Coverage
+
+| Area | Coverage |
+|---|---|
+| API security | Unauthenticated access to protected claims endpoints |
+| Authentication | Login form accessibility and invalid credentials |
+| Authorization | Claimant access and admin routing |
+| Claim validation | Required incident details prevent progression with an empty form |
+| UI unit testing | Existing React components and application behavior using Vitest and Testing Library |
+
+### Validation Results
+
+| Test suite | Result |
+|---|---|
+| Frontend unit tests | 266 passed across 25 test files |
+| Playwright API tests | 2 passed |
+| Playwright authentication and authorization tests | 4 passed |
+| Playwright claim validation tests | 1 passed |
+| Playwright sequential execution | 7 passed using 1 worker |
+| Playwright parallel execution | 7 passed using 3 workers; repeated stability runs completed |
+
+### Running the QA Automation Suite
+
+Start the application and its required dependencies using the instructions in this README. Then run the following commands from the `qa-automation` directory:
+
+```bash
+npm install
+npx playwright install chromium
+npx playwright test --workers=3
+```
+
+For sequential execution:
+
+```bash
+npx playwright test --workers=1
+```
+
+Refer to [`qa-automation/README.md`](qa-automation/README.md) for detailed setup instructions, test execution, and reporting.
+
+### Scope and Limitations
+
+The Playwright suite currently covers seven scenarios across API security, authentication and authorization, and claim submission validation. It is focused coverage rather than exhaustive end-to-end coverage.
+
+The frontend unit-test suite passed all 266 tests in the latest recorded run. Java backend unit tests, contract tests, integration tests, and load/performance tests have not been confirmed as passing by these results.
+
+A test that exposes a genuine defect should be retained and documented rather than changed solely to make it pass.
 ## Testing
 
 ### What's already there
