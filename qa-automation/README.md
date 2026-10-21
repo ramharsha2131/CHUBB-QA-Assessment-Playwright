@@ -52,7 +52,14 @@ From `code/claims-service`: `./mvnw test` (Git Bash/WSL) or `mvnw.cmd test` (Win
 - `AI-WORKING-JOURNAL.md`: transparent AI decisions
 
 ## Reporting and limitations
-HTML report: `qa-automation/playwright-report/index.html`. Screenshots, videos and traces are retained on failure under `test-results/`. A test that exposes a genuine defect should be kept and documented, not made to pass artificially. This generated suite has not been verified against a running Docker stack here; confirm actual results before submission.
+
+The Playwright HTML report is available at `qa-automation/playwright-report/index.html` after running the tests. Screenshots, videos, and traces are configured to be retained on failure under `test-results/`.
+
+**Validation results:** The Playwright suite was executed against the locally running Docker Compose application using Chromium in headed mode with one worker. All 7 tests passed: 2 API authorization tests, 4 authentication/authorization tests, and 1 claim-wizard validation test.
+
+Parallel execution previously produced failures, so test isolation and parallel reliability still require investigation. These results apply only to the 7 Playwright tests; the existing React component tests, Java unit tests, and other integration tests have not been confirmed as passing by this result.
+
+A test that exposes a genuine defect should be kept and documented, not made to pass artificially.
 
 ## Suggested commit sequence (create commits when work is genuinely performed)
 1. `docs: assess source architecture and testing risks`
