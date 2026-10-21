@@ -1,0 +1,17 @@
+{
+  "name": "chubb-claims-qa-automation",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Playwright automation suite in JavaScript for the supplied claims demo",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:api": "playwright test tests/api.spec.js",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2"
+  }
+}
