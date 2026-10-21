@@ -20,7 +20,7 @@ No full Kafka, WebSocket, performance, visual-regression, or end-to-end claim cr
 
 ## Review findings and limitations
 - **Documentation mismatch**: the assessment describes Angular and no tests; the supplied application is React/Next.js and includes tests. This is a verifiable inconsistency, not an application bug.
-- **Validation status**: The seven-test Playwright suite was executed successfully against the locally running Docker Compose application using Chromium in headed mode with one worker. All seven tests passed: two API authorization tests, four authentication and authorization tests, and one claim-wizard validation test. Parallel execution previously showed failures, so parallel reliability remains an area for investigation. This result confirms the curent Playwright suite only; it does not establish that all component, unit, or integration suites pass.
+- **Validation status:** The seven-test Playwright suite was executed successfully against the locally running Docker Compose application using Chromium in headed mode with one worker. All seven tests passed: two API authorization tests, four authentication and authorization tests, and one claim-wizard validation test. Parallel execution previously showed failures, so parallel reliability remains an area for investigation. These results confirm only the current Playwright suite; they do not establish that all component, unit, or integration suites pass.
 - **Credentials**: the sample users are documented in the original repository README. Override them with environment variables for non-demo environments.
 - **Test isolation**: authentication tests use shared demo accounts but do not modify claims; future create/update tests should generate unique data and clean up.
 
