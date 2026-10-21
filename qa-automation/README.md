@@ -55,16 +55,25 @@ From `code/claims-service`: `./mvnw test` (Git Bash/WSL) or `mvnw.cmd test` (Win
 
 The Playwright HTML report is available at `qa-automation/playwright-report/index.html` after running the tests. Screenshots, videos, and traces are configured to be retained on failure under `test-results/`.
 
-**Validation results:** The Playwright suite was executed against the locally running Docker Compose application using Chromium in headed mode with one worker. All 7 tests passed: 2 API authorization tests, 4 authentication/authorization tests, and 1 claim-wizard validation test.
+**Validation results:** The Playwright suite was executed against the locally running Docker Compose application using Chromium. All 7 tests passed in the sequential run using one worker. The suite also passed with three workers, and repeated runs were used to check parallel-execution stability.
 
-Parallel execution previously produced failures, so test isolation and parallel reliability still require investigation. These results apply only to the 7 Playwright tests; the existing React component tests, Java unit tests, and other integration tests have not been confirmed as passing by this result.
+- API authorization tests: 2 passed
+- Authentication and authorization tests: 4 passed
+- Claim-wizard validation tests: 1 passed
+
+The UI component/unit-test suite was separately executed using Vitest, with 266 tests passing across 25 test files. React emitted non-fatal `act(...)` warnings in some tests.
+
+These results apply to the tests listed above. The Java unit tests and other integration tests have not been confirmed as passing by these results.
 
 A test that exposes a genuine defect should be kept and documented, not made to pass artificially.
 
 ## Suggested commit sequence (create commits when work is genuinely performed)
+
 1. `docs: assess source architecture and testing risks`
 2. `test: add Playwright fixtures and auth scenarios`
 3. `test: add API authorization and wizard validation checks`
 4. `docs: record results and AI decisions`
 
 Do not fabricate a commit history or claim unperformed work.
+
+
