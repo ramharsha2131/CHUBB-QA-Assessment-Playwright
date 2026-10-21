@@ -22,7 +22,7 @@ export const useThemeStore = create<ThemeStore>()(
     }),
     {
       name: 'theme-storage',
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );
