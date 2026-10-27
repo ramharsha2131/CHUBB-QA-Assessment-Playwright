@@ -1,11 +1,12 @@
 const { test: base, expect } = require('@playwright/test');
 const { LoginPage } = require('../pages/login.page');
+const { ClaimPage } = require('../pages/claim.page');
+const { AdminClaimsPage } = require('../pages/admin-claims.page');
 
-// Shared fixture: each test receives a ready-to-use LoginPage object.
 const test = base.extend({
-  loginPage: async ({ page }, use) => {
-    await use(new LoginPage(page));
-  },
+  loginPage: async ({ page }, use) => use(new LoginPage(page)),
+  claimPage: async ({ page }, use) => use(new ClaimPage(page)),
+  adminClaimsPage: async ({ page }, use) => use(new AdminClaimsPage(page)),
 });
 
 module.exports = { test, expect };

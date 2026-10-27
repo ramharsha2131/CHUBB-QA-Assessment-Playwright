@@ -1,287 +1,201 @@
-# Demo App — Insurance Claims Management
+﻿# Insurance Claims Management — QA Assessment
 
-A three-tier microservices application used as a QA assessment platform. The app is fully functional and ships with unit tests. The QA team's task is to extend test coverage across all layers — integration, contract, E2E, load, and beyond.
+## Overview
 
----
+A three-tier insurance claims management demo used for QA assessment. This repository contains the application, service contracts, database migrations, Docker Compose configuration, and a separate Playwright/JavaScript QA automation suite.
 
 ## Architecture
 
-![Architecture](ss-demo-app.png)
+See [ARCHITECTURE.md](ARCHITECTURE.md) and `ss-demo-app.png`.
 
-| Tier | Technology | Port |
-|------|-----------|------|
-| UI | Next.js 16 + React 19 | 3001 |
-| BFF | Spring Boot 4 + Java 21 | 8090 |
-| Claims Service | Spring Boot 4 + Java 21 | 8080 |
-| Auth | Keycloak 26 (OAuth2/OIDC) | 8180 |
-| Database | PostgreSQL 15 | 5432 |
-| Cache | Redis 7 | 6379 |
-| Event Streaming | Apache Kafka | 9092 |
-| Kafka UI | provectuslabs/kafka-ui | 9093 |
-| CDC (optional) | Debezium 2.4 | 8083 |
+| Component | Technology | Default port |
+|---|---|---:|
+| Web UI | Next.js / React | 3001 |
+| Backend-for-Frontend (BFF) | Spring Boot / Java 21 | 8090 |
+| Claims service | Spring Boot / Java 21 | 8080 |
+| Identity provider | Keycloak | 8180 |
+| Database | PostgreSQL | 5432 |
+| Cache | Redis | 6379 |
+| Event streaming | Kafka | 9092 |
+| Kafka UI | Kafka UI | 9093 |
+| CDC (optional) | Debezium | 8083 |
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for full details.
+The original application structure is retained under `code/`. The separate browser/API automation suite is under `qa-automation/`.
 
----
+### Source layout
 
-## Prerequisites
+```text
+code/
+  demo-app-ui/                         Next.js UI and React component tests
+  bff-service/src/
+    main/java/.../adapter/             HTTP, security, messaging, and external adapters
+    main/java/.../application/         Application use cases and ports
+    main/java/.../domain/              Business entities, rules, and domain events
+    main/resources/
+      openapi/bff-api.yml              UI-to-BFF API contract
+      asyncapi/                        Event contracts
+    test/                               JUnit, contract, and integration tests
+  claims-service/src/
+    main/java/.../adapter/             Web, persistence, cache, and messaging adapters
+    main/java/.../application/         Application use cases and ports
+    main/java/.../domain/              Claim and user business rules
+    main/resources/
+      application*.yml                 Runtime and test configuration
+      db/changelog/                    Liquibase schema migrations
+      openapi/claims-api.yml           BFF-to-claims API contract
+      asyncapi/                        Event contracts
+    test/                               JUnit and integration tests
+qa-automation/
+  tests/                               Playwright browser and API tests
+  pages/ fixtures/ data/               Shared test utilities and test data
+prompts/                               Available AI prompt records
+```
 
-| Tool | Min version | Check | Install |
-|------|-------------|-------|---------|
-| **Docker Desktop** | 24+ | `docker --version` | https://docs.docker.com/get-docker/ |
-| **Java (JDK)** | 21 | `java -version` | https://adoptium.net |
-| **Maven** | 3.9+ | `mvn -version` | https://maven.apache.org/download.cgi |
-| **Node.js** | 20+ | `node --version` | https://nodejs.org |
+The original services use hexagonal package names (`adapter`, `application`, `domain`) rather than a literal `src/api`, `src/service`, or `src/infrastructure` directory. This keeps the established application structure intact while maintaining the same separation of API adapters, business use cases, domain logic, and infrastructure integrations.
 
-> **macOS:** `brew install --cask docker && brew install temurin@21 maven node`
+## Set up
 
----
+### Prerequisites
 
-## Quick Start
+- Docker Desktop with Docker Compose v2.20 or newer
+- Node.js 20+ and npm to run the test suites
+- Java 21 and Maven only when building or running backend tests outside Docker
+- Git Bash or WSL only when using the supplied `.sh` helper scripts
+
+Check your installations:
 
 ```bash
-./start-infra.sh   # Start PostgreSQL, Kafka, Redis, Keycloak
-./start-app.sh     # Build JARs + start Claims Service, BFF, UI
+docker --version
+docker compose version
+node --version
+npm --version
 ```
 
-> First run: ~2–3 min (image downloads). Subsequent starts: ~30 seconds.
+### Start the complete application
 
-### URLs
+From the repository root, build and start the entire stack with one command:
 
-| What | URL | Credentials |
-|------|-----|-------------|
-| **Demo App UI** | http://localhost:3001 | See test users below |
-| BFF Swagger | http://localhost:8090/swagger-ui.html | — |
-| Claims Swagger | http://localhost:8080/swagger-ui.html | — |
-| Keycloak Admin | http://localhost:8180 | `admin` / `Admin123!` |
-| Kafka UI | http://localhost:9093 | — |
-
-### Test Users
-
-| Role | Username | Password |
-|------|----------|----------|
-| Admin | `admin@demo.com` | `Admin123!` |
-| Claimant | `claimant@demo.com` | `Claimant123!` |
-
----
-
-## Stop
-
-```bash
-./stop-app.sh
-./stop-infra.sh
-
-# Wipe all data for a clean slate:
-./stop-app.sh && ./stop-infra.sh -v
+```powershell
+docker compose up --build -d --wait
 ```
 
----
+The root [docker-compose.yml](docker-compose.yml) starts infrastructure, builds both Java services inside Docker, starts the UI, and waits for health checks. On first run, image and dependency downloads may take several minutes. If you have an older stack running from the split Compose files, stop it first to release its ports:
 
-## Real-Time Events — Two Modes
-
-Claim events are pushed to the UI in real time via WebSocket. There are two ways to generate those events — choose one. Running both simultaneously causes duplicate notifications.
-
-### Mode 1: Direct Kafka (default)
-
-The Claims Service publishes events directly to Kafka after each write. No extra setup needed.
-
-`APP_EVENTS_CDC_ENABLED=false` is set by default in `docker-compose.apps.yml`. Just run the normal startup above.
-
----
-
-### Mode 2: Change Data Capture via Debezium
-
-Debezium monitors the PostgreSQL WAL (write-ahead log) and publishes database changes to Kafka. The BFF consumes these CDC events.
-
-**Step 1** — In `docker-compose.apps.yml`, set:
-```yaml
-APP_EVENTS_CDC_ENABLED: "true"
+```powershell
+docker compose -f docker-compose.apps.yml down
+docker compose -f docker-compose.infra.yml down
 ```
 
-**Step 2** — Start the app (infra + app must be running first):
-```bash
-./start-app.sh
-```
+The original split `start-infra.sh` / `start-app.sh` workflow is still available; it starts infrastructure and application services separately. Docker builds the backend JARs, so Java and Maven are not required on the host.
 
-**Step 3** — Start Debezium after the app is healthy:
-```bash
-./start-cdc.sh
-```
+### Application URLs
 
-**Verify connector is running:**
-```bash
-curl http://localhost:8083/connectors/claims-connector/status | python3 -m json.tool
-```
-You should see `"state": "RUNNING"` for both the connector and its task.
-
-**Stop CDC:**
-```bash
-./stop-cdc.sh
-```
-
-> To switch back to direct Kafka: set `APP_EVENTS_CDC_ENABLED=false` and run `./start-app.sh`.
-
----
-## QA Assessment Summary
-
-### Overview
-
-This assessment extends the supplied Insurance Claims Management demo with a separate Playwright automation suite using JavaScript. The suite complements the existing frontend and backend tests and focuses on high-priority authentication, authorization, API security, and claim submission validation scenarios.
-
-The supplied application uses Next.js 16 and React 19 for the UI, Spring Boot and Java 21 for backend services, and supporting infrastructure including PostgreSQL, Redis, Kafka, and Keycloak.
-
-### Automated Test Coverage
-
-| Area | Coverage |
+| Service | URL |
 |---|---|
-| API security | Unauthenticated access to protected claims endpoints |
-| Authentication | Login form accessibility and invalid credentials |
-| Authorization | Claimant access and admin routing |
-| Claim validation | Required incident details prevent progression with an empty form |
-| UI unit testing | Existing React components and application behavior using Vitest and Testing Library |
+| Web UI | http://localhost:3001 |
+| BFF Swagger UI | http://localhost:8090/swagger-ui.html |
+| Claims Swagger UI | http://localhost:8080/swagger-ui.html |
+| Keycloak | http://localhost:8180 |
+| Kafka UI | http://localhost:9093 |
 
-### Validation Results
+The preconfigured demo accounts are for local assessment only; never reuse these credentials in production.
 
-| Test suite | Result |
-|---|---|
-| Frontend unit tests | 266 passed across 25 test files |
-| Playwright API tests | 2 passed |
-| Playwright authentication and authorization tests | 4 passed |
-| Playwright claim validation tests | 1 passed |
-| Playwright sequential execution | 7 passed using 1 worker |
-| Playwright parallel execution | 7 passed using 3 workers; repeated stability runs completed |
+To stop the one-command stack and retain its data:
 
-### Running the QA Automation Suite
-
-Start the application and its required dependencies using the instructions in this README. Then run the following commands from the `qa-automation` directory:
-
-```bash
-npm install
-npx playwright install chromium
-npx playwright test --workers=3
+```powershell
+docker compose down
 ```
 
-For sequential execution:
+`docker compose down -v` also deletes the local PostgreSQL and Redis volumes. Use it only when you intentionally want to erase local data.
 
-```bash
-npx playwright test --workers=1
-```
+## API Reference
 
-Refer to [`qa-automation/README.md`](qa-automation/README.md) for detailed setup instructions, test execution, and reporting.
+OpenAPI contracts are the source of truth for request/response shapes, authentication, and error responses:
 
-### Scope and Limitations
+- [BFF OpenAPI contract](code/bff-service/src/main/resources/openapi/bff-api.yml) — browser-facing authentication, claims, and admin operations.
+- [Claims Service OpenAPI contract](code/claims-service/src/main/resources/openapi/claims-api.yml) — internal user, claim, and dashboard operations.
+- [Claims Service migrations](code/claims-service/src/main/resources/db/changelog/) — Liquibase schema changes.
+- `code/bff-service/src/main/resources/asyncapi/` and `code/claims-service/src/main/resources/asyncapi/` — asynchronous event contracts.
 
-The Playwright suite currently covers seven scenarios across API security, authentication and authorization, and claim submission validation. It is focused coverage rather than exhaustive end-to-end coverage.
+The principal BFF routes include `POST /api/auth/signup`, `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/logout`, `GET/POST /api/claims`, and admin dashboard/claims endpoints. The claims service contract describes user and claims CRUD, admin status transitions, and dashboard operations. See the linked OpenAPI files for full schemas, security requirements, and response codes.
 
-The frontend unit-test suite passed all 266 tests in the latest recorded run. Java backend unit tests, contract tests, integration tests, and load/performance tests have not been confirmed as passing by these results.
+When the stack is running, Swagger UI is available at [BFF Swagger UI](http://localhost:8090/swagger-ui.html) and [Claims Service Swagger UI](http://localhost:8080/swagger-ui.html).
 
-A test that exposes a genuine defect should be retained and documented rather than changed solely to make it pass.
 ## Testing
 
-### What's already there
+### Playwright browser and API suite
 
-The codebase ships with **unit tests** across all three tiers and scaffolding for more advanced testing types. The intent is that the QA team uses this as a starting point and builds out coverage from here.
+The separate suite in `qa-automation/` uses Playwright Test with JavaScript. After starting the application, run:
 
-| Layer | Framework | Status |
-|-------|-----------|--------|
-| Backend unit tests | JUnit 5, Mockito, AssertJ | Provided — some may need fixing |
-| Frontend unit tests | Vitest, Testing Library | Provided |
-| E2E tests | Playwright | Scaffolded — empty |
-| Contract tests | Pact | Scaffolded — empty |
-| Integration tests | Testcontainers | Scaffolded — empty |
-| Architecture tests | ArchUnit | Provided |
-
-### What's been disabled
-
-To keep the build simple and focused on the app itself, the following have been turned off in `pom.xml` (but the code/config remains for the QA team to re-enable and work with):
-
-| Feature | Property | Notes |
-|---------|----------|-------|
-| WireMock stub generation | `skipWiremockGeneration=true` | Stubs exist in `code/bff-service/mocks/` |
-| AsyncAPI doc generation | `skipAsyncApiGeneration=true` | Specs exist in `src/main/resources/asyncapi/` |
-| Postman collection generation | `skipPostmanGeneration=true` | Can be re-enabled |
-| Kafka schema validation | `kafka.producer.schema-validation.enabled=false` | Schema files exist in `asyncapi/schemas/` |
-| Checkstyle / PMD | Skipped in Docker build | Still runs locally via `mvn verify` |
-
-### QA team scope
-
-The app is a blank canvas for testing. Suggested areas:
-
-- Fix and extend unit tests (a broken test exists as a starting point)
-- Add integration tests using Testcontainers
-- Build out Pact contract tests between BFF and Claims Service
-- Write Playwright E2E tests for the main user journeys
-- Add load/performance tests (K6, Gatling, etc.)
-- Create a test strategy document
-- Write manual test scripts
-
-### Run existing unit tests
-
-```bash
-# Backend
-cd code/claims-service && mvn test
-cd code/bff-service && mvn test
-
-# Frontend
-cd code/demo-app-ui && npm test
+```powershell
+Set-Location qa-automation
+npm ci
+npx playwright install chromium
+npm test
 ```
 
-### Run E2E tests (requires full stack running)
+The nine cases cover login and authorization, protected API routes, empty claim validation, claimant claim creation, and admin status transitions. Useful focused commands:
 
-```bash
-cd code/demo-app-ui && npx playwright test
+```powershell
+npx playwright test --workers=1 --retries=0
+npm test
+npm run test:smoke
+npm run test:api
+npm run test:headed
+npm run test:ui
+npm run report
 ```
 
----
+The application stack must be running for full-stack browser/API tests that depend on it.
+
+The suite covers authentication, API access controls, claim wizard validation, claimant-to-admin claim processing, and admin status changes. Claim IDs are discovered at runtime rather than fixed in the tests.
+
+**Verified local result:** 9 passed, 0 failed using `npm test` on 2026-10-27. See [QA test results](qa-automation/TEST-RESULTS.md); rerun after changes or in a new environment.
+
+### Existing frontend and backend tests
+
+Frontend tests:
+
+```bash
+cd code/demo-app-ui
+npm install
+npm test
+```
+
+Backend tests:
+
+```bash
+cd code/claims-service
+mvn test
+```
+
+```bash
+cd code/bff-service
+mvn test
+```
+
+Some backend integration tests may require Docker and Testcontainers. Check each service's build configuration before interpreting failures.
 
 ## Diagnostics
 
 ```bash
-# Container status
-docker compose -f docker-compose.infra.yml ps
-docker compose -f docker-compose.apps.yml ps
-
-# Service logs
-docker compose -f docker-compose.apps.yml logs -f claims-service
-docker compose -f docker-compose.apps.yml logs -f bff-service
-docker compose -f docker-compose.apps.yml logs -f ui
-
-# Health checks
-curl http://localhost:8080/actuator/health   # Claims Service
-curl http://localhost:8090/actuator/health   # BFF Service
+docker compose ps
+docker compose logs -f claims-service
+docker compose logs -f bff-service
+docker compose logs -f ui
 ```
 
----
+Health endpoints:
 
-## Running Services Locally (IDE / Debugging)
+- Claims service: http://localhost:8080/actuator/health
+- BFF: http://localhost:8090/actuator/health
 
-Start infra via Docker, then run services on your machine:
+## Decisions, assumptions, and QA documentation
 
-```bash
-./start-infra.sh
-
-# Terminal 1
-cd code/claims-service && mvn spring-boot:run
-
-# Terminal 2
-cd code/bff-service && mvn spring-boot:run
-
-# Terminal 3
-cd code/demo-app-ui
-npm install   # first time only
-npm run dev -- --port 3001
-```
-
----
-
-## Rebuilding After Code Changes
-
-```bash
-# Full rebuild (Maven + Docker)
-./start-app.sh
-
-# Rebuild a single service image only
-docker compose -f docker-compose.apps.yml up --build --pull never claims-service
-docker compose -f docker-compose.apps.yml up --build --pull never bff-service
-docker compose -f docker-compose.apps.yml up --build --pull never ui
-```
+- [Architecture](ARCHITECTURE.md)
+- [Decisions and assumptions](DECISIONS-AND-ASSUMPTIONS.md)
+- [Playwright test strategy](qa-automation/TEST-STRATEGY.md)
+- [Test cases](qa-automation/docs/TEST-CASES.md)
+- [Reported test results](qa-automation/TEST-RESULTS.md)
+- [AI prompt records](prompts/README.md)
+- [AI working journal](qa-automation/AI-WORKING-JOURNAL.md)

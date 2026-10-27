@@ -1,4 +1,4 @@
-# CHUBB APAC — QA automation (separate folder)
+﻿# CHUBB APAC â€” QA automation (separate folder)
 
 A focused, maintainable Playwright/JavaScript suite against the supplied claims management demo. Keep this folder within the original repository; open the **repository root** in VS Code.
 
@@ -12,14 +12,13 @@ The supplied project is **Next.js + React**, not Angular as the separate assessm
 - VS Code with Playwright Test extension (optional)
 
 ## Start the supplied application
-From the repository root, follow its `README.md` and run the infrastructure/application scripts in a shell that supports `.sh` (Git Bash or WSL on Windows):
+From the repository root, use the all-in-one Compose file described in the main `README.md`:
 
-```bash
-./start-infra.sh
-./start-app.sh
+```powershell
+docker compose up --build -d --wait
 ```
 
-Wait until http://localhost:3001/login is accessible and backend services are healthy. Docker is required for integration/E2E runs. On Windows, use Git Bash/WSL for the scripts; see root README for more details.
+Docker builds the backend JARs and starts the complete stack. The former split Compose/scripts workflow is still available; use Git Bash or WSL for the `.sh` scripts.
 
 ## Install and run the separate tests in VS Code
 Open a new VS Code terminal **in `qa-automation`**:
@@ -44,31 +43,17 @@ From `code/claims-service`: `./mvnw test` (Git Bash/WSL) or `mvnw.cmd test` (Win
 ## Files
 - `playwright.config.js`: browsers, reporting, failure artifacts, timeouts
 - `fixtures/test.js`: shared Playwright fixture
-- `pages/login.page.js`: login page object
-- `data/users.js`: central test credentials
-- `tests/`: authentication, API security, wizard validation
+- `pages/`: login, claim wizard, and admin claim page objects
+- `data/`: central credentials and unique claim test data
+- `tests/`: authentication, API security, wizard validation, claimant-to-admin E2E, and admin status workflow
 - `docs/TEST-CASES.md`: test matrix and deferred scenarios
 - `TEST-STRATEGY.md`: risk and scope decisions
 - `AI-WORKING-JOURNAL.md`: transparent AI decisions
 
 ## Reporting and limitations
-
-The Playwright HTML report is available at `qa-automation/playwright-report/index.html` after running the tests. Screenshots, videos, and traces are configured to be retained on failure under `test-results/`.
-
-**Validation results:** The Playwright suite was executed against the locally running Docker Compose application using Chromium. All 7 tests passed in the sequential run using one worker. The suite also passed with three workers, and repeated runs were used to check parallel-execution stability.
-
-- API authorization tests: 2 passed
-- Authentication and authorization tests: 4 passed
-- Claim-wizard validation tests: 1 passed
-
-The UI component/unit-test suite was separately executed using Vitest, with 266 tests passing across 25 test files. React emitted non-fatal `act(...)` warnings in some tests.
-
-These results apply to the tests listed above. The Java unit tests and other integration tests have not been confirmed as passing by these results.
-
-A test that exposes a genuine defect should be kept and documented, not made to pass artificially.
+HTML report: `qa-automation/playwright-report/index.html`. Screenshots, videos and traces are retained on failure under `test-results/`. A test that exposes a genuine defect should be kept and documented, not made to pass artificially. The new end-to-end tests require the supplied Docker stack to be running. Execute the full suite in your environment and confirm the result before submission.
 
 ## Suggested commit sequence (create commits when work is genuinely performed)
-
 1. `docs: assess source architecture and testing risks`
 2. `test: add Playwright fixtures and auth scenarios`
 3. `test: add API authorization and wizard validation checks`
@@ -76,4 +61,7 @@ A test that exposes a genuine defect should be kept and documented, not made to 
 
 Do not fabricate a commit history or claim unperformed work.
 
+## Claim lifecycle scenarios
+The suite includes two additional full-stack tests. Both create unique claim data at runtime and extract the displayed claim ID from the table; neither hardcodes a claim ID. The admin test creates its own claim before changing status, so it does not depend on a pre-existing `Submitted` record. Status changes are selected only when the current dropdown offers that transition.
 
+Latest reported local test result: 9 passed, 0 failed, using `npx playwright test --workers=1 --retries=0` on 27 October 2026. This result reflects the reported local run; rerun the suite after code or configuration changes to verify the current checkout. The application stack must be running for tests that depend on the full application.

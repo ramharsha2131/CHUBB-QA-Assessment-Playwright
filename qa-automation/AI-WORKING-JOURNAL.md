@@ -1,22 +1,13 @@
 # AI working journal
 
-| Decision | AI suggestion | Accepted / challenged / overridden | Reason |
-|---|---|---|---|
-| Framework | Playwright with TypeScript | Overridden | The implemented suite uses Playwright with JavaScript, matching the existing package setup. |
-| Structure | Separate `qa-automation` package | Accepted | Keeps the automation suite organized without disrupting the original application modules. |
-| Frontend | Use Angular Testing Library from the brief | Overridden | The supplied source is React/Next.js and already uses React Testing Library. |
-| Baseline | Assume the application has zero tests | Challenged | Existing React component tests and Java test files are present. |
-| Results | Report tests as passed without executing them | Rejected | Test results must be based on actual execution. |
+This journal records the AI-assisted work visible in the current task session. It is not a complete record of earlier sessions or a transcript from Claude.
 
-## Execution and debugging log
+| Date | Work and decision | Evidence / result |
+|---|---|---|
+| 2026-10-27 | Diagnosed the initial Playwright login failures as an unavailable Keycloak service; restored the stopped container and confirmed realm discovery before rerunning tests. | The login, claim wizard, and API cases passed after Keycloak became healthy. |
+| 2026-10-27 | Fixed both claim lifecycle tests to filter for `Under Review` after the transition instead of relying on an outdated `Submitted`-filtered list. Existing test scenarios were kept intact. | Focused lifecycle tests passed (2/2); full Playwright suite passed (9/9). |
+| 2026-10-27 | Documented the actual hexagonal Java source layout rather than moving code into new `api/`, `service/`, or `infrastructure/` folders. | Existing module boundaries, OpenAPI contracts, resources, and tests are preserved. |
+| 2026-10-27 | Added a root Compose configuration and multi-stage backend builds so the full stack can be built and started using one command. Retained the split Compose files and scripts, and updated the legacy app script to let Docker build the JARs. | Compose configurations validated; both backend images built successfully one at a time. Full-stack startup was not run because the existing local stack was already using its ports. |
+| 2026-10-27 | Added a prompt record for the prompts available in this task context; did not invent unavailable history or label this as a Claude transcript. | See `prompts/2026-10-27-task-session.md`. |
 
-| Decision | AI suggestion or initial approach | Accepted / challenged / overridden | Reason |
-|---|---|---|---|
-| Test execution | Run all Playwright tests using the default worker count | Challenged | Parallel execution produced failures involving authentication and application access. |
-| Test isolation | Run tests sequentially using `--workers=1` | Accepted for validation | All seven tests passed in the headed Chromium run with one worker. Parallel reliability still needs investigation. |
-| Password locator | Use `getByLabel('Password')` | Overridden | The locator matched more than one element because the password visibility button also had an accessible label. A more specific password input locator resolved the ambiguity. |
-| Invalid-login assertion | Use a broad `getByRole('alert')` locator | Overridden | Multiple elements matched. The assertion was narrowed to the exact expected error text. |
-| Test reporting | Generate and review the Playwright HTML report | Accepted | The report provides a record of test execution and failure details. |
-| Final validation | Treat seven passing tests as proof that all assessment requirements are complete | Rejected | Passing Playwright tests do not prove that component, unit, or all integration tests pass. |
-
-**Reflection:** This journal records the AI-assisted suggestions, observed debugging work, and decisions made during development. Before submission, confirm that each entry accurately reflects your own understanding and experience.
+The visible user requests and resulting actions are summarized in the prompt record. The test cases were not edited during the documentation and local-setup work.

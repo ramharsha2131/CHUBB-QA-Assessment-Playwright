@@ -1,0 +1,8 @@
+demo-app-ui
+**/node_modules
+**/.next
+**/target
+**/playwright-report
+**/test-results
+**/coverage
+**/.DS_Store

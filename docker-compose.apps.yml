@@ -32,7 +32,8 @@ services:
 
   bff-service:
     build:
-      context: ./code/bff-service
+      context: ./code
+      dockerfile: bff-service/Dockerfile
     container_name: demo-bff-service
     ports:
       - "8090:8090"
