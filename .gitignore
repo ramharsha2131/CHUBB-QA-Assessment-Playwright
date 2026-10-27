@@ -1,4 +1,4 @@
-# Test outputs
+﻿# Test outputs
 test-results/
 **/test-results/
 
@@ -33,7 +33,11 @@ venv/
 # MyPy
 .mypy_cache/
 
-docker/compose/.env
-
-**/target/
-**/.DS_Store
+node_modules/
+**/node_modules/
+playwright-report/
+**/playwright-report/
+.env
+**/.env
+!.env.example
+*.bak
