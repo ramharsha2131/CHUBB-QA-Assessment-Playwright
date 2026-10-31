@@ -2,6 +2,7 @@ const { test, expect } = require('../fixtures/test');
 const { users } = require('../data/users');
 
 test.describe('Claim submission validation', () => {
+  // An empty first step must keep the claimant from advancing in the wizard.
   test('CLAIM-01: required incident details prevent advancing with an empty form', async ({ loginPage, page }) => {
     await loginPage.open();
     await loginPage.submit(users.claimant.email, users.claimant.password);

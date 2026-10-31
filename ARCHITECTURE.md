@@ -155,3 +155,7 @@ Claims Service creates/updates claim
 - **Keycloak** runs in `start-dev` mode with an in-memory H2 database. The realm (`demo-app`) is auto-imported from `docker/compose/keycloak/`. Realm config is not persisted to a volume — the JSON file is the source of truth.
 - **JWT validation:** Backend services fetch signing keys from Keycloak's internal Docker hostname (`keycloak:8080`). The `iss` claim in tokens is stamped with the browser-facing URL (`localhost:8180`) via `KC_HOSTNAME` configuration.
 - **No production hardening** — this is a demo/QA environment. Credentials are intentionally simple.
+
+## QA Automation Boundary
+
+The separate Playwright package and its test responsibilities are described in [qa-automation/ARCHITECTURE.md](qa-automation/ARCHITECTURE.md). The current specs declare 11 browser and API cases. Manual UI defect reproductions and screenshots are maintained separately in [qa-automation/DEFECTS.md](qa-automation/DEFECTS.md) and `qa-automation/evidence/`; those screenshots are exploratory evidence, not generated test-failure artifacts.

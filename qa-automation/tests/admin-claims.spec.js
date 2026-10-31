@@ -9,6 +9,7 @@ test('ADMIN-01: Admin reviews and approves a newly submitted claim', async ({
 }) => {
   const claimData = createClaimData();
 
+  // A claimant creates a fresh claim so this test does not depend on old data.
   await loginPage.open();
   await loginPage.submit(users.claimant.email, users.claimant.password);
   await expect(page).toHaveURL(/\/claims(?:\?.*)?$/, { timeout: 20_000 });
@@ -21,6 +22,7 @@ test('ADMIN-01: Admin reviews and approves a newly submitted claim', async ({
   console.log(`Claim selected for admin review: ${claimId}`);
   await claimPage.logout();
 
+  // The admin finds that claim by status, reviews it, then approves it.
   await loginPage.open();
   await loginPage.submit(users.admin.email, users.admin.password);
   await expect(page).toHaveURL(/\/admin\/dashboard(?:\?.*)?$/, { timeout: 20_000 });

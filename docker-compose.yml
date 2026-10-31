@@ -177,7 +177,8 @@ services:
 
   ui:
     build:
-      context: ./code/demo-app-ui
+      context: ./code
+      dockerfile: demo-app-ui/Dockerfile
     ports:
       - "3001:3001"
     environment:

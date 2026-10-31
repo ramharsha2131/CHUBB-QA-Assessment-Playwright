@@ -45,8 +45,11 @@ From `code/claims-service`: `./mvnw test` (Git Bash/WSL) or `mvnw.cmd test` (Win
 - `fixtures/test.js`: shared Playwright fixture
 - `pages/`: login, claim wizard, and admin claim page objects
 - `data/`: central credentials and unique claim test data
-- `tests/`: authentication, API security, wizard validation, claimant-to-admin E2E, and admin status workflow
-- `docs/TEST-CASES.md`: test matrix and deferred scenarios
+- `tests/`: authentication, API security, wizard validation, role-access negatives, claimant-to-admin E2E, and admin status workflow (11 declared cases)
+- `docs/TEST-CASES.md`: concise ID traceability matrix and deferred scenarios
+- `tescases.md`: detailed case steps, boundary/data-driven classifications, and links to manual defect reproductions
+- `evidence/`: screenshots for the five reproduced UI defects documented in `DEFECTS.md`
+- `DEFECTS.md`: UI defect descriptions, reproduction steps, and screenshot evidence
 - `TEST-STRATEGY.md`: risk and scope decisions
 - `AI-WORKING-JOURNAL.md`: transparent AI decisions
 
@@ -64,4 +67,4 @@ Do not fabricate a commit history or claim unperformed work.
 ## Claim lifecycle scenarios
 The suite includes two additional full-stack tests. Both create unique claim data at runtime and extract the displayed claim ID from the table; neither hardcodes a claim ID. The admin test creates its own claim before changing status, so it does not depend on a pre-existing `Submitted` record. Status changes are selected only when the current dropdown offers that transition.
 
-Latest reported local test result: 9 passed, 0 failed, using `npx playwright test --workers=1 --retries=0` on 27 October 2026. This result reflects the reported local run; rerun the suite after code or configuration changes to verify the current checkout. The application stack must be running for tests that depend on the full application.
+Latest verified local test result: 11 passed, 0 failed, using `npm test` on 31 October 2026. The earlier 9-pass run from 27 October is historical. See [TEST-RESULTS.md](TEST-RESULTS.md) for both runs; rerun after future code or configuration changes. The application stack must be running for tests that depend on the full application.

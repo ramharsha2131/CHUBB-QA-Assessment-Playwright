@@ -24,3 +24,14 @@
 - Docker startup and image builds must be validated on the target machine and may take several minutes on first use.
 - The prompt log covers the prompts visible in the current task context only; it is not a complete historical export.
 - Default demo credentials and development-mode Keycloak are not production-safe.
+
+## QA Documentation and Evidence
+
+- Keep `qa-automation/docs/TEST-CASES.md` as the concise ID/priority traceability matrix and `qa-automation/tescases.md` as the detailed steps and test-type guide requested for the assessment.
+- The current Playwright specs declare 11 cases. The 9-pass result dated 2026-10-27 remains historical; the full current suite passed on 2026-10-31 with 11 passed and 0 failed.
+- Keep the five manually reproduced UI defect screenshots in `qa-automation/evidence/`, linked from `qa-automation/DEFECTS.md`. These are exploratory evidence, not Playwright failure artifacts or passing regression tests.
+
+## Evidence Assumptions
+
+- Screenshot evidence was captured against the local demo stack on 2026-10-31 and reflects the data/state available during that browser session.
+- Manual defect reproductions and automated Playwright coverage are reported separately unless a regression test is added and executed.

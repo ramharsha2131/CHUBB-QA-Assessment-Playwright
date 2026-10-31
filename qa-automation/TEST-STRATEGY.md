@@ -13,14 +13,14 @@ Observed application layers: Next.js UI on 3001; Spring Boot BFF on 8090; Spring
 5. **Caching (P1)**: stale dashboard statistics may mislead users.
 
 ## Coverage chosen
-This separate Playwright suite targets authentication, role routing, anonymous API access, initial claim wizard validation, and the claimant-to-admin claim lifecycle including status transitions. The supplied React component tests and Java unit tests remain in their native modules and can be run separately. The full-stack scenarios require the Docker application to be running.
+The current Playwright specs declare 11 cases covering authentication, role routing, anonymous API access, empty-form validation, claimant-to-admin claim lifecycle and status transitions, claimant access denial, and allowed admin status choices. The supplied React component tests and Java unit tests remain in their native modules and can be run separately. Full-stack scenarios require the application stack to be running.
 
 ## Deliberately excluded / future work
-No full Kafka, WebSocket, performance, visual-regression, or end-to-end claim creation assertions in this initial focused suite. These require more setup, deterministic test data and/or dedicated infrastructure. Prioritize cross-user ownership and status transitions next.
+Automated coverage does not include Kafka delivery, WebSocket synchronization, performance, visual regression, cross-user claim ownership, or backend enforcement of status transitions. The UI suite does exercise claim creation and admin status transitions. Five UI defects were also reproduced manually and recorded with screenshots in [DEFECTS.md](DEFECTS.md); they are findings, not automated passing tests.
 
 ## Review findings and limitations
 - **Documentation mismatch**: the assessment describes Angular and no tests; the supplied application is React/Next.js and includes tests. This is a verifiable inconsistency, not an application bug.
-- **Execution status**: JavaScript syntax validation is performed during packaging. The full Playwright suite still needs execution against the running Docker stack; do not treat the tests as passing until that run completes.
+- **Execution status**: The current 11-test suite passed on 2026-10-31 (`npm test`: 11 passed, 0 failed). The 9-pass run from 2026-10-27 is historical.
 - **Credentials**: the sample users are documented in the original repository README. Override them with environment variables for non-demo environments.
 - **Test isolation**: authentication tests use shared demo accounts but do not modify claims; claim create/update tests generate unique data; test records may remain in the demo database after execution.
 

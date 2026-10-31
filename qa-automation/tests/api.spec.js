@@ -2,11 +2,13 @@ const { test, expect } = require('../fixtures/test');
 const bff = process.env.BFF_URL || 'http://localhost:8090';
 
 test.describe('Protected claims API', () => {
+  // Without a session, claim data must not be readable by a regular caller.
   test('SEC-01: anonymous requests cannot read claims', async ({ request }) => {
     const response = await request.get(`${bff}/api/claims`, { maxRedirects: 0 });
     expect([401, 403]).toContain(response.status());
   });
 
+  // Admin-only claim data must also reject callers without authentication.
   test('SEC-02: anonymous requests cannot access admin claims', async ({ request }) => {
     const response = await request.get(`${bff}/api/admin/claims`, { maxRedirects: 0 });
     expect([401, 403]).toContain(response.status());

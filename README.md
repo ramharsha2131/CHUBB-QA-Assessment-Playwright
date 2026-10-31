@@ -134,7 +134,7 @@ npx playwright install chromium
 npm test
 ```
 
-The nine cases cover login and authorization, protected API routes, empty claim validation, claimant claim creation, and admin status transitions. Useful focused commands:
+The current specs declare 11 cases covering login and authorization, protected API routes, empty claim validation, claimant claim creation, admin status transitions, and role-based negative checks. Useful focused commands:
 
 ```powershell
 npx playwright test --workers=1 --retries=0
@@ -150,7 +150,7 @@ The application stack must be running for full-stack browser/API tests that depe
 
 The suite covers authentication, API access controls, claim wizard validation, claimant-to-admin claim processing, and admin status changes. Claim IDs are discovered at runtime rather than fixed in the tests.
 
-**Verified local result:** 9 passed, 0 failed using `npm test` on 2026-10-27. See [QA test results](qa-automation/TEST-RESULTS.md); rerun after changes or in a new environment.
+**Latest verified result:** 11 passed, 0 failed using `npm test` on 2026-10-31. The 9-pass run from 2026-10-27 is historical. See [QA test results](qa-automation/TEST-RESULTS.md).
 
 ### Existing frontend and backend tests
 
@@ -195,7 +195,10 @@ Health endpoints:
 - [Architecture](ARCHITECTURE.md)
 - [Decisions and assumptions](DECISIONS-AND-ASSUMPTIONS.md)
 - [Playwright test strategy](qa-automation/TEST-STRATEGY.md)
-- [Test cases](qa-automation/docs/TEST-CASES.md)
+- [Test case traceability matrix](qa-automation/docs/TEST-CASES.md)
+- [Detailed test cases and manual defect reproductions](qa-automation/tescases.md)
+- [UI defects and screenshot evidence](qa-automation/DEFECTS.md)
+- [Saved defect screenshots and defect descriptions](qa-automation/DEFECTS.md)
 - [Reported test results](qa-automation/TEST-RESULTS.md)
 - [AI prompt records](prompts/README.md)
 - [AI working journal](qa-automation/AI-WORKING-JOURNAL.md)

@@ -7,6 +7,7 @@ test('E2E-CLAIM-ADMIN-01: claimant submits a claim and admin reviews then approv
 }) => {
   const claimData = createClaimData();
 
+  // Submit a unique claim as claimant and capture its displayed ID for admin review.
   await loginPage.open();
   await loginPage.submit(users.claimant.email, users.claimant.password);
   await expect(page).toHaveURL(/\/claims(?:\?.*)?$/, { timeout: 20_000 });
@@ -21,6 +22,7 @@ test('E2E-CLAIM-ADMIN-01: claimant submits a claim and admin reviews then approv
   console.log(`Newly submitted claim ID: ${claimId}`);
   await claimPage.logout();
 
+  // Switch roles, locate the new claim, and move it through review to approval.
   await loginPage.open();
   await loginPage.submit(users.admin.email, users.admin.password);
   await expect(page).toHaveURL(/\/admin\/dashboard(?:\?.*)?$/, { timeout: 20_000 });
